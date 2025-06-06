@@ -229,33 +229,18 @@
             border: 1px solid var(--border-color);
         }
 
-        /* Smart Selection Tools */
-        .smart-select-tools {
+        /* Character Counter */
+        .char-counter {
             position: fixed;
-            bottom: var(--spacing-md);
-            right: var(--spacing-md);
-            background: white;
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-md);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            pointer-events: none;
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-sm);
-        }
-
-        .char-count-input {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-
-        .char-count-input input {
-            width: 120px;
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
+            display: none;
+            animation: fadeIn 0.2s ease-out;
         }
 
         /* Export Panel */
@@ -314,8 +299,8 @@
 
         /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* Scrollbar Styling */
@@ -496,6 +481,223 @@
             background: var(--background-light);
             color: var(--text-secondary);
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            min-width: 400px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            color: var(--text-secondary);
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+            transform: none;
+            background: none;
+        }
+
+        .modal-body {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Chapter Styles */
+        .chapter-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-md);
+            overflow: hidden;
+        }
+
+        .chapter-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background: var(--background-light);
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chapter-header:hover {
+            background: #f0f0f0;
+        }
+
+        .chapter-title {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .chapter-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .chapter-sections {
+            padding: var(--spacing-md);
+            transition: height 0.3s ease-in-out;
+        }
+
+        .chapter-sections.collapsed {
+            height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .section-item {
+            margin-left: var(--spacing-md);
+            border-left: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .section-item:hover {
+            border-left-color: var(--primary-color);
+        }
+
+        .chapter-duration {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            background: rgba(0,0,0,0.05);
+            border-radius: var(--radius-sm);
+        }
+
+        .chapter-collapse-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .chapter-collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        /* Drag and Drop Styles */
+        .dragging {
+            opacity: 0.5;
+            cursor: move;
+        }
+
+        .drag-over {
+            border: 2px dashed var(--primary-color);
+            margin: 8px 0;
+        }
+
+        .drag-indicator {
+            height: 2px;
+            background: var(--primary-color);
+            margin: 4px 0;
+            display: none;
+        }
+
+        .drag-indicator.visible {
+            display: block;
+        }
+
+        /* Update existing styles */
+        .sections-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* Add these to your existing styles */
+        .header-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .save-btn, .load-btn {
+            background-color: var(--primary-color);
+        }
+
+        .save-btn:hover, .load-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Add these styles */
+        .section-highlight.flash {
+            animation: flash-highlight 1s ease-in-out;
+        }
+
+        @keyframes flash-highlight {
+            0% { background-color: rgba(255, 255, 0, 0.5); }
+            100% { background-color: inherit; }
+        }
+
+        .section-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .section-item:hover {
+            transform: translateX(4px);
+            background-color: rgba(0, 0, 0, 0.02);
+        }
     </style>
 </head>
 <body>
@@ -520,39 +722,68 @@
         <div class="column">
             <div class="column-header">
                 <h2>📝 Book Sections</h2>
+                <div class="header-controls">
+                    <button onclick="createNewChapter()" class="create-chapter-btn">
+                        <i>📚</i> New Chapter
+                    </button>
+                    <button onclick="saveProgress()" class="save-btn">
+                        <i>💾</i> Save
+                    </button>
+                    <input type="file" id="loadFile" accept=".json" style="display: none;" onchange="loadProgress(this)">
+                    <button onclick="document.getElementById('loadFile').click()" class="load-btn">
+                        <i>📂</i> Load
+                    </button>
+                    <button onclick="showExportModal()" class="export-btn">
+                        <i>📤</i> Export
+                    </button>
+                </div>
             </div>
             <div class="column-content">
                 <div id="sectionsList" class="sections-list"></div>
             </div>
-            <div class="export-panel">
-                <h2>📤 Export Options</h2>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="exportMetadata" checked>
-                    <label for="exportMetadata">Export metadata (.json)</label>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Export Options</h2>
+                <button class="modal-close" onclick="hideExportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <label>
+                        <input type="checkbox" id="exportMetadata" checked>
+                        Export metadata (sections, chapters, highlights)
+                    </label>
+                    <label>
+                        <input type="checkbox" id="exportAudio" checked>
+                        Export audio files
+                    </label>
+                    <label>
+                        <input type="checkbox" id="exportBookContent" checked>
+                        Export book content with highlights
+                    </label>
+                    <label>
+                        <input type="checkbox" id="createZip" checked>
+                        Create ZIP archive
+                    </label>
+                    <label>
+                        <input type="checkbox" id="mergeAudio">
+                        Merge audio files
+                    </label>
+                    <div class="silence-duration" style="margin-left: 20px;">
+                        <label>
+                            Silence between sections (seconds):
+                            <input type="number" id="silenceDuration" value="2" min="0" max="10">
+                        </label>
+                    </div>
                 </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="exportAudio" checked>
-                    <label for="exportAudio">Copy audio clips to folder</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="createZip">
-                    <label for="createZip">Zip all clips</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="mergeAudio">
-                    <label for="mergeAudio">Merge all into single .wav</label>
-                </div>
-                <div class="dropdown">
-                    <label for="silenceDuration">Silence between clips:</label>
-                    <select id="silenceDuration">
-                        <option value="0">0s</option>
-                        <option value="1">1s</option>
-                        <option value="2" selected>2s</option>
-                        <option value="5">5s</option>
-                    </select>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="status" style="display: none;"></div>
                 <button onclick="startExport()">Export</button>
-                <div id="status" class="status" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -575,15 +806,9 @@
         </div>
     </div>
 
-    <!-- Smart Selection Tools -->
-    <div class="smart-select-tools">
-        <div class="char-count-input">
-            <input type="number" id="charCount" min="1" value="500" placeholder="Character count">
-            <span>characters</span>
-        </div>
-        <button id="smartSelectBtn" class="smart-select-btn" onclick="smartSelect()" disabled>
-            <i>📏</i> Smart Select
-        </button>
+    <!-- Character Counter -->
+    <div class="char-counter">
+        <span id="charCount">0</span> characters
     </div>
 
     <!-- Selection Guide Overlay -->
@@ -604,9 +829,428 @@
 
     <script>
         let bookText = '';
-        let sections = [];
+        let chapters = [];
         let currentColorIndex = 1;
         const MAX_COLORS = 8;
+
+        // Chapter Management
+        function createNewChapter() {
+            const chapter = {
+                id: Date.now(),
+                name: `Chapter ${chapters.length + 1}`,
+                colorIndex: getNextColor(),
+                sections: [],
+                collapsed: false,
+                description: '',
+                totalDuration: 0
+            };
+            chapters.push(chapter);
+            updateChaptersList();
+        }
+
+        function updateChapterName(chapterId, newName) {
+            const chapter = chapters.find(c => c.id === chapterId);
+            if (chapter) {
+                chapter.name = newName;
+                updateChaptersList();
+            }
+        }
+
+        function toggleChapter(chapterId) {
+            const chapter = chapters.find(c => c.id === chapterId);
+            if (chapter) {
+                chapter.collapsed = !chapter.collapsed;
+                updateChaptersList();
+            }
+        }
+
+        function deleteChapter(chapterId) {
+            if (confirm('Are you sure you want to delete this chapter and all its sections?')) {
+                chapters = chapters.filter(c => c.id !== chapterId);
+                updateChaptersList();
+            }
+        }
+
+        function playChapter(chapterId) {
+            const chapter = chapters.find(c => c.id === chapterId);
+            if (!chapter || !chapter.sections.length) return;
+            
+            let currentIndex = 0;
+            const audioElements = chapter.sections
+                .filter(s => s.audioPath)
+                .map(s => {
+                    const audio = new Audio(s.audioPath);
+                    audio.addEventListener('ended', () => {
+                        currentIndex++;
+                        if (currentIndex < chapter.sections.length) {
+                            audio.src = chapter.sections[currentIndex].audioPath;
+                            audio.play();
+                        }
+                    });
+                    return audio;
+                });
+            
+            if (audioElements.length) {
+                audioElements[0].play();
+            }
+        }
+
+        // Section Management
+        function createSection() {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            if (!text) return;
+
+            // If no chapters exist, create one
+            if (chapters.length === 0) {
+                createNewChapter();
+            }
+
+            const range = selection.getRangeAt(0);
+            const colorIndex = currentColorIndex;
+            
+            // Create section object
+            const section = {
+                id: Date.now(),
+                text: text,
+                colorIndex: colorIndex,
+                status: 'pending',
+                name: `Section ${getNextSectionNumber(chapters[chapters.length - 1].id)}`,
+                chapterId: chapters[chapters.length - 1].id
+            };
+            
+            // Create highlight span
+            const span = document.createElement('span');
+            span.className = `section-highlight section-color-${colorIndex}`;
+            span.textContent = text;
+            span.dataset.sectionId = section.id;
+            
+            // Replace selected text with highlighted span
+            range.deleteContents();
+            range.insertNode(span);
+            
+            // Add section to the last chapter
+            const lastChapter = chapters[chapters.length - 1];
+            lastChapter.sections.push(section);
+            
+            // Update UI
+            updateChaptersList();
+            updateSelectionColor();
+            
+            // Clear selection
+            selection.removeAllRanges();
+        }
+
+        function getNextSectionNumber(chapterId) {
+            const chapter = chapters.find(c => c.id === chapterId);
+            return chapter ? chapter.sections.length + 1 : 1;
+        }
+
+        function updateSectionName(sectionId, newName) {
+            for (const chapter of chapters) {
+                const section = chapter.sections.find(s => s.id === sectionId);
+                if (section) {
+                    section.name = newName;
+                    updateChaptersList();
+                    break;
+                }
+            }
+        }
+
+        function deleteSection(chapterId, sectionId) {
+            const chapter = chapters.find(c => c.id === chapterId);
+            if (chapter) {
+                chapter.sections = chapter.sections.filter(s => s.id !== sectionId);
+                updateChaptersList();
+            }
+        }
+
+        // UI Updates
+        function updateChaptersList() {
+            const sectionsList = document.getElementById('sectionsList');
+            sectionsList.innerHTML = chapters.map(chapter => `
+                <div class="chapter-item" data-chapter-id="${chapter.id}">
+                    <div class="chapter-header" onclick="toggleChapter(${chapter.id})">
+                        <div class="chapter-collapse-icon ${chapter.collapsed ? 'collapsed' : ''}">▼</div>
+                        <div class="color-indicator" style="background-color: var(--section-color-${chapter.colorIndex}); border-color: ${getAccentColor(chapter.colorIndex)}"></div>
+                        <input type="text" value="${chapter.name}" 
+                               onchange="updateChapterName(${chapter.id}, this.value)"
+                               onclick="event.stopPropagation()"
+                               class="chapter-title" />
+                        <div class="chapter-duration">${formatDuration(calculateChapterDuration(chapter))}</div>
+                        <div class="chapter-controls">
+                            <button onclick="event.stopPropagation(); playChapter(${chapter.id})">
+                                <i>▶️</i> Play All
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteChapter(${chapter.id})">
+                                <i>🗑️</i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chapter-sections ${chapter.collapsed ? 'collapsed' : ''}">
+                        ${chapter.sections.map((section, index) => `
+                            <div class="section-item section-color-${section.colorIndex}" 
+                                 data-section-id="${section.id}"
+                                 ondblclick="navigateToSection(${section.id})"
+                                 title="Double-click to locate in text">
+                                <div class="section-header">
+                                    <div class="color-indicator" style="background-color: var(--section-color-${section.colorIndex}); border-color: ${getAccentColor(section.colorIndex)}"></div>
+                                    <input type="text" value="${section.name}" 
+                                           onchange="updateSectionName(${section.id}, this.value)" 
+                                           class="section-name" />
+                                    <span class="section-status">${section.status}</span>
+                                </div>
+                                <div class="section-text">${section.text}</div>
+                                <div class="audio-controls">
+                                    ${section.audioPath ? `
+                                        <audio controls src="${section.audioPath}"></audio>
+                                        <button onclick="removeAudio(${chapter.id}, ${section.id})">Remove Audio</button>
+                                    ` : `
+                                        <input type="file" accept="audio/*" onchange="attachAudio(${chapter.id}, ${section.id}, this)">
+                                    `}
+                                    <button onclick="deleteSection(${chapter.id}, ${section.id})">Delete Section</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            initializeDragAndDrop();
+        }
+
+        function calculateChapterDuration(chapter) {
+            return chapter.sections.reduce((total, section) => {
+                const audio = document.querySelector(`audio[src="${section.audioPath}"]`);
+                return total + (audio ? audio.duration : 0);
+            }, 0);
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds || isNaN(seconds)) return '00:00';
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+
+        // Drag and Drop
+        function initializeDragAndDrop() {
+            const draggables = document.querySelectorAll('.section-item');
+            const containers = document.querySelectorAll('.chapter-sections');
+
+            draggables.forEach(draggable => {
+                draggable.setAttribute('draggable', true);
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('dragging');
+                });
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                });
+            });
+
+            containers.forEach(container => {
+                container.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    const draggable = document.querySelector('.dragging');
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    
+                    if (afterElement) {
+                        container.insertBefore(draggable, afterElement);
+                    } else {
+                        container.appendChild(draggable);
+                    }
+                });
+
+                container.addEventListener('drop', e => {
+                    e.preventDefault();
+                    const sectionId = parseInt(document.querySelector('.dragging').dataset.sectionId);
+                    const newChapterId = parseInt(container.closest('.chapter-item').dataset.chapterId);
+                    
+                    moveSection(sectionId, newChapterId);
+                });
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.section-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function moveSection(sectionId, newChapterId) {
+            let section;
+            let oldChapter;
+            
+            // Find and remove section from old chapter
+            for (const chapter of chapters) {
+                const sectionIndex = chapter.sections.findIndex(s => s.id === sectionId);
+                if (sectionIndex !== -1) {
+                    section = chapter.sections[sectionIndex];
+                    oldChapter = chapter;
+                    chapter.sections.splice(sectionIndex, 1);
+                    break;
+                }
+            }
+            
+            // Add section to new chapter
+            if (section) {
+                const newChapter = chapters.find(c => c.id === newChapterId);
+                if (newChapter) {
+                    section.chapterId = newChapterId;
+                    newChapter.sections.push(section);
+                    updateChaptersList();
+                }
+            }
+        }
+
+        // Update existing functions
+        async function attachAudio(chapterId, sectionId, input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            try {
+                const formData = new FormData();
+                formData.append('audio', file);
+                
+                const audioControls = input.parentElement;
+                const loadingSpan = document.createElement('span');
+                loadingSpan.textContent = file.name.toLowerCase().endsWith('.mp3') ? 'Converting and uploading...' : 'Uploading...';
+                audioControls.appendChild(loadingSpan);
+                input.disabled = true;
+                
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+                
+                const chapter = chapters.find(c => c.id === chapterId);
+                const section = chapter?.sections.find(s => s.id === sectionId);
+                if (section) {
+                    section.audioPath = result.path;
+                    section.status = 'done';
+                    updateChaptersList();
+                }
+            } catch (error) {
+                console.error('Error uploading audio:', error);
+                alert('Failed to upload audio file: ' + error.message);
+            } finally {
+                const audioControls = input.parentElement;
+                const loadingSpan = audioControls.querySelector('span');
+                if (loadingSpan) {
+                    audioControls.removeChild(loadingSpan);
+                }
+                input.disabled = false;
+            }
+        }
+
+        function removeAudio(chapterId, sectionId) {
+            const chapter = chapters.find(c => c.id === chapterId);
+            const section = chapter?.sections.find(s => s.id === sectionId);
+            if (section) {
+                section.audioPath = null;
+                section.status = 'pending';
+                updateChaptersList();
+            }
+        }
+
+        // Update export function
+        async function startExport() {
+            const status = document.getElementById('status');
+            status.style.display = 'block';
+            status.className = 'status';
+            status.textContent = 'Exporting...';
+            
+            // Collect highlight information
+            const bookContent = document.getElementById('bookContent');
+            const highlights = Array.from(bookContent.querySelectorAll('.section-highlight')).map(highlight => ({
+                text: highlight.textContent,
+                sectionId: highlight.dataset.sectionId,
+                className: highlight.className
+            }));
+
+            const exportOptions = {
+                exportMetadataFlag: document.getElementById('exportMetadata').checked,
+                exportAudioFlag: document.getElementById('exportAudio').checked,
+                exportBookContentFlag: document.getElementById('exportBookContent').checked,
+                createZipFlag: document.getElementById('createZip').checked,
+                mergeAudioFlag: document.getElementById('mergeAudio').checked,
+                silenceDuration: parseInt(document.getElementById('silenceDuration').value),
+                chapters: chapters.map(chapter => ({
+                    ...chapter,
+                    sections: chapter.sections.map(section => ({
+                        ...section,
+                        chapterName: chapter.name
+                    }))
+                })),
+                bookContent: document.getElementById('bookContent').innerHTML,
+                bookText: bookText,
+                highlights: highlights,
+                version: '1.0'
+            };
+            
+            try {
+                const response = await fetch('/api/export', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(exportOptions)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    status.className = 'status success';
+                    status.textContent = 'Export completed successfully!';
+                    
+                    if (exportOptions.createZipFlag) {
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = `/exports/${result.exportId}/audiobook_export.zip`;
+                        downloadLink.download = 'audiobook_export.zip';
+                        downloadLink.click();
+                    } else if (exportOptions.mergeAudioFlag) {
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = `/exports/${result.exportId}/merged_audiobook.wav`;
+                        downloadLink.download = 'merged_audiobook.wav';
+                        downloadLink.click();
+                    }
+                    
+                    setTimeout(hideExportModal, 2000);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                console.error('Export failed:', error);
+                status.className = 'status error';
+                status.textContent = `Export failed: ${error.message}`;
+            }
+        }
+
+        // Initialize when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSelectionColor();
+            if (chapters.length === 0) {
+                createNewChapter();
+            }
+        });
 
         // Update the color cycling
         function getNextColor() {
@@ -636,76 +1280,6 @@
                 8: '#7986cb'  // Indigo
             };
             return accentColors[colorIndex] || accentColors[1];
-        }
-
-        function createSection() {
-            const selection = window.getSelection();
-            const text = selection.toString().trim();
-            if (!text) return;
-
-            const range = selection.getRangeAt(0);
-            const colorIndex = currentColorIndex;
-            
-            // Create section object
-            const section = {
-                id: Date.now(),
-                text: text,
-                colorIndex: colorIndex,
-                status: 'pending',
-                name: `Section ${sections.length + 1}`
-            };
-            
-            // Create highlight span
-            const span = document.createElement('span');
-            span.className = `section-highlight section-color-${colorIndex}`;
-            span.textContent = text;
-            span.dataset.sectionId = section.id;
-            
-            // Replace selected text with highlighted span
-            range.deleteContents();
-            range.insertNode(span);
-            
-            // Add section to array
-            sections.push(section);
-            
-            // Update UI
-            updateSectionsList();
-            updateSelectionColor();
-            
-            // Clear selection
-            selection.removeAllRanges();
-        }
-
-        function updateSectionsList() {
-            const sectionsList = document.getElementById('sectionsList');
-            sectionsList.innerHTML = sections.map(section => `
-                <div class="section-item section-color-${section.colorIndex}">
-                    <div class="section-header">
-                        <div class="color-indicator" style="background-color: var(--section-color-${section.colorIndex}); border-color: ${getAccentColor(section.colorIndex)}"></div>
-                        <input type="text" value="${section.name}" 
-                               onchange="updateSectionName(${section.id}, this.value)" 
-                               class="section-name" />
-                        <span class="section-status">${section.status}</span>
-                    </div>
-                    <div class="section-text">${section.text}</div>
-                    <div class="audio-controls">
-                        ${section.audioPath ? `
-                            <audio controls src="${section.audioPath}"></audio>
-                            <button onclick="removeAudio(${section.id})">Remove Audio</button>
-                        ` : `
-                            <input type="file" accept="audio/*" onchange="attachAudio(${section.id}, this)">
-                        `}
-                        <button onclick="deleteSection(${section.id})">Delete Section</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function updateSectionName(sectionId, newName) {
-            const section = sections.find(s => s.id === sectionId);
-            if (section) {
-                section.name = newName;
-            }
         }
 
         async function uploadBook() {
@@ -745,8 +1319,8 @@
                 reader.onload = function(e) {
                     bookText = e.target.result;
                     bookContent.textContent = bookText;
-                    sections = [];
-                    updateSectionsList();
+                    chapters = [];
+                    updateChaptersList();
                     updateSelectionColor(); // Initialize selection color
                     loadingIndicator.style.display = 'none';
                     
@@ -783,102 +1357,119 @@
             const text = selection.toString().trim();
             
             const tools = document.getElementById('selection-tools');
+            const charCounter = document.querySelector('.char-counter');
+            
             if (text) {
                 const range = selection.getRangeAt(0);
                 const rect = range.getBoundingClientRect();
                 
+                // Update and position the character counter
+                document.getElementById('charCount').textContent = text.length;
+                charCounter.style.display = 'block';
+                charCounter.style.top = (window.scrollY + rect.top - 30) + 'px';
+                charCounter.style.left = (rect.left + rect.width/2) + 'px';
+                charCounter.style.transform = 'translateX(-50%)';
+                
+                // Position the selection tools
+                const viewportHeight = window.innerHeight;
+                const viewportWidth = window.innerWidth;
+                
                 tools.style.display = 'block';
-                tools.style.top = (window.scrollY + rect.bottom + 10) + 'px';
-                tools.style.left = (rect.left) + 'px';
+                tools.style.visibility = 'hidden';  // Hide it while we measure
+                const toolsRect = tools.getBoundingClientRect();
+                
+                // Calculate initial position
+                let top = window.scrollY + rect.bottom + 10;
+                let left = rect.left;
+                
+                // Ensure the tools stay within viewport horizontally
+                if (left + toolsRect.width > viewportWidth - 20) {
+                    left = viewportWidth - toolsRect.width - 20;
+                }
+                if (left < 20) {
+                    left = 20;
+                }
+                
+                // Always show the tools above the selection if we're in the bottom 25% of the viewport
+                const bottomThreshold = viewportHeight * 0.75;
+                if (rect.bottom > bottomThreshold) {
+                    top = window.scrollY + rect.top - toolsRect.height - 10;
+                
+                    // If showing below selection would go off screen, show above
+                    if (top + toolsRect.height > window.scrollY + viewportHeight - 20) {
+                        top = window.scrollY + rect.top - toolsRect.height - 10;
+                    }
+                }
+                
+                // If showing above would go off screen, ensure minimum padding from top
+                if (top < window.scrollY + 20) {
+                    top = window.scrollY + 20;
+                }
+                
+                // Position and show the tools
+                tools.style.top = top + 'px';
+                tools.style.left = left + 'px';
+                tools.style.visibility = 'visible';
                 
                 document.getElementById('selectionLength').textContent = text.length;
                 document.getElementById('selectionPreview').textContent = text;
             } else {
-                if (!tools.contains(e.target)) {
-                    tools.style.display = 'none';
-                }
+                tools.style.display = 'none';
+                charCounter.style.display = 'none';
             }
         });
 
-        function attachAudio(sectionId, input) {
-            const file = input.files[0];
-            if (!file) return;
-            
-            const section = sections.find(s => s.id === sectionId);
-            if (section) {
-                section.audioPath = URL.createObjectURL(file);
-                section.status = 'done';
-                updateSectionsList();
-            }
-        }
-
-        function removeAudio(sectionId) {
-            const section = sections.find(s => s.id === sectionId);
-            if (section) {
-                section.audioPath = null;
-                section.status = 'pending';
-                updateSectionsList();
-            }
-        }
-
-        function deleteSection(sectionId) {
-            sections = sections.filter(s => s.id !== sectionId);
-            updateSectionsList();
-        }
-
-        async function startExport() {
-            const status = document.getElementById('status');
-            status.style.display = 'none';
-            
-            const exportOptions = {
-                exportMetadataFlag: document.getElementById('exportMetadata').checked,
-                exportAudioFlag: document.getElementById('exportAudio').checked,
-                createZipFlag: document.getElementById('createZip').checked,
-                mergeAudioFlag: document.getElementById('mergeAudio').checked,
-                silenceDuration: parseInt(document.getElementById('silenceDuration').value),
-                sections: sections
-            };
-            
-            try {
-                const response = await fetch('/api/export', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(exportOptions)
-                });
-                
-                const result = await response.json();
-                
-                status.style.display = 'block';
-                if (result.success) {
-                    status.className = 'status success';
-                    status.textContent = 'Export completed successfully!';
-                } else {
-                    status.className = 'status error';
-                    status.textContent = `Export failed: ${result.error}`;
-                }
-            } catch (error) {
-                status.style.display = 'block';
-                status.className = 'status error';
-                status.textContent = `Export failed: ${error.message}`;
-            }
-        }
-
         document.addEventListener('mousedown', function(e) {
             const tools = document.getElementById('selection-tools');
+            const charCounter = document.querySelector('.char-counter');
             if (!tools.contains(e.target) && !window.getSelection().toString().trim()) {
                 tools.style.display = 'none';
+                charCounter.style.display = 'none';
             }
         });
 
         document.addEventListener('scroll', function() {
             const tools = document.getElementById('selection-tools');
+            const charCounter = document.querySelector('.char-counter');
             if (tools.style.display === 'block') {
                 const selection = window.getSelection();
                 if (selection.toString().trim()) {
                     const rect = selection.getRangeAt(0).getBoundingClientRect();
-                    tools.style.top = (window.scrollY + rect.bottom + 10) + 'px';
+                    
+                    // Update character counter position
+                    charCounter.style.top = (window.scrollY + rect.top - 30) + 'px';
+                    charCounter.style.left = (rect.left + rect.width/2) + 'px';
+                    
+                    // Update tools position
+                    const toolsRect = tools.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight;
+                    const viewportWidth = window.innerWidth;
+                    
+                    let top = window.scrollY + rect.bottom + 10;
+                    let left = rect.left;
+                    
+                    if (left + toolsRect.width > viewportWidth - 20) {
+                        left = viewportWidth - toolsRect.width - 20;
+                    }
+                    if (left < 20) {
+                        left = 20;
+                    }
+                    
+                    const bottomThreshold = viewportHeight * 0.75;
+                    if (rect.bottom > bottomThreshold) {
+                        top = window.scrollY + rect.top - toolsRect.height - 10;
+                        
+                        if (top + toolsRect.height > window.scrollY + viewportHeight - 20) {
+                            top = window.scrollY + rect.top - toolsRect.height - 10;
+                        }
+                    }
+                    
+                    if (top < window.scrollY + 20) {
+                        top = window.scrollY + 20;
+                    }
+                    
+                    tools.style.top = top + 'px';
+                    tools.style.left = left + 'px';
                 }
             }
         });
@@ -886,110 +1477,237 @@
         // Initialize selection color when the page loads
         document.addEventListener('DOMContentLoaded', function() {
             updateSelectionColor();
-            document.getElementById('smartSelectBtn').disabled = !bookText;
         });
 
-        // Find paragraph boundaries
-        function findParagraphBoundaries(text, position) {
-            let start = position;
-            let end = position;
-            
-            // Find paragraph start (previous double newline or start of text)
-            while (start > 0) {
-                if (text.substring(start - 2, start) === '\n\n') {
-                    break;
-                }
-                start--;
-            }
-            
-            // Find paragraph end (next double newline or end of text)
-            while (end < text.length) {
-                if (text.substring(end, end + 2) === '\n\n') {
-                    break;
-                }
-                end++;
-            }
-            
-            return { start, end };
+        function showExportModal() {
+            document.getElementById('exportModal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
         }
 
-        // Get cursor position in text content
-        function getCursorPosition(element) {
-            const selection = window.getSelection();
-            if (selection.rangeCount === 0) return 0;
-            
-            const range = selection.getRangeAt(0);
-            const preCaretRange = range.cloneRange();
-            preCaretRange.selectNodeContents(element);
-            preCaretRange.setEnd(range.endContainer, range.endOffset);
-            return preCaretRange.toString().length;
+        function hideExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+            document.body.style.overflow = ''; // Restore scrolling
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('status').textContent = '';
         }
 
-        // Smart select text based on character count
-        function smartSelect() {
+        // Close modal when clicking outside
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideExportModal();
+            }
+        });
+
+        // Add these functions to your JavaScript
+        function saveProgress() {
+            // Get all highlights from the book content
             const bookContent = document.getElementById('bookContent');
-            const charCount = parseInt(document.getElementById('charCount').value);
-            if (!charCount || !bookText) return;
+            const highlights = Array.from(bookContent.querySelectorAll('.section-highlight')).map(highlight => ({
+                text: highlight.textContent,
+                sectionId: highlight.dataset.sectionId,
+                className: highlight.className,
+                startOffset: getNodeOffset(highlight),
+                length: highlight.textContent.length
+            }));
 
-            const cursorPos = getCursorPosition(bookContent);
-            let targetEnd = Math.min(cursorPos + charCount, bookText.length);
-            
-            // Create a new range for the selection
-            const selection = window.getSelection();
+            const projectData = {
+                bookText: bookText,
+                chapters: chapters,
+                currentColorIndex: currentColorIndex,
+                highlights: highlights,
+                timestamp: new Date().toISOString(),
+                version: '1.0'
+            };
+
+            // Create and download the JSON file
+            const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `audiobook_progress_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Helper function to get text node offset
+        function getNodeOffset(node) {
             const range = document.createRange();
-            
-            // Find the start and end nodes
-            let currentPos = 0;
-            let startNode = null;
-            let endNode = null;
-            let startOffset = 0;
-            let endOffset = 0;
-            
-            function traverseNodes(node) {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    const length = node.textContent.length;
-                    
-                    if (!startNode && currentPos + length >= cursorPos) {
-                        startNode = node;
-                        startOffset = cursorPos - currentPos;
+            range.selectNode(node);
+            return range.startOffset;
+        }
+
+        async function loadProgress(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            try {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const projectData = JSON.parse(e.target.result);
+                        
+                        // Validate project data
+                        if (!projectData.version || !projectData.chapters || !projectData.bookText) {
+                            throw new Error('Invalid project file format');
+                        }
+
+                        // Load the book text
+                        bookText = projectData.bookText;
+                        const bookContent = document.getElementById('bookContent');
+                        bookContent.textContent = bookText;
+
+                        // Load chapters
+                        chapters = projectData.chapters;
+                        
+                        // Restore color index
+                        if (projectData.currentColorIndex !== undefined) {
+                            currentColorIndex = projectData.currentColorIndex;
+                        }
+
+                        // Restore highlights
+                        if (projectData.highlights && Array.isArray(projectData.highlights)) {
+                            projectData.highlights.forEach(highlight => {
+                                try {
+                                    // Create the highlight element
+                                    const span = document.createElement('span');
+                                    span.className = highlight.className;
+                                    span.textContent = highlight.text;
+                                    span.dataset.sectionId = highlight.sectionId;
+
+                                    // Find the text in the content
+                                    const textNode = findTextNodeWithContent(bookContent, highlight.text);
+                                    if (textNode) {
+                                        const range = document.createRange();
+                                        range.setStart(textNode, textNode.textContent.indexOf(highlight.text));
+                                        range.setEnd(textNode, textNode.textContent.indexOf(highlight.text) + highlight.text.length);
+                                        range.deleteContents();
+                                        range.insertNode(span);
+                                    }
+                                } catch (highlightError) {
+                                    console.warn('Failed to restore highlight:', highlightError);
+                                }
+                            });
+                        }
+
+                        // Update UI
+                        updateChaptersList();
+                        
+                    } catch (error) {
+                        console.error('Error loading project:', error);
+                        alert('Failed to load project: ' + error.message);
                     }
-                    
-                    if (!endNode && currentPos + length >= targetEnd) {
-                        endNode = node;
-                        endOffset = targetEnd - currentPos;
-                        return true;
+                };
+                reader.readAsText(file);
+            } catch (error) {
+                console.error('Error reading file:', error);
+                alert('Failed to read file: ' + error.message);
+            }
+        }
+
+        // Helper function to find text nodes containing specific content
+        function findTextNodeWithContent(element, searchText) {
+            const walker = document.createTreeWalker(
+                element,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode: function(node) {
+                        return node.textContent.includes(searchText)
+                            ? NodeFilter.FILTER_ACCEPT
+                            : NodeFilter.FILTER_REJECT;
                     }
-                    
-                    currentPos += length;
                 }
+            );
+
+            return walker.nextNode();
+        }
+
+        function navigateToSection(sectionId) {
+            // Find the section highlight in the book content
+            const highlight = document.querySelector(`.section-highlight[data-section-id="${sectionId}"]`);
+            if (!highlight) return;
+
+            // Scroll the highlight into view with some padding
+            highlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Add flash animation
+            highlight.classList.remove('flash');
+            void highlight.offsetWidth; // Force reflow to restart animation
+            highlight.classList.add('flash');
+
+            // Remove flash class after animation
+            setTimeout(() => {
+                highlight.classList.remove('flash');
+            }, 1000);
+
+            // Update URL hash for direct linking
+            window.location.hash = `section-${sectionId}`;
+        }
+
+        // Handle direct links to sections
+        window.addEventListener('load', function() {
+            if (window.location.hash) {
+                const sectionId = window.location.hash.replace('#section-', '');
+                if (sectionId) {
+                    setTimeout(() => navigateToSection(sectionId), 500);
+                }
+            }
+        });
+
+        // Add this function to handle importing exported content
+        async function importExportedContent(exportId) {
+            try {
+                const response = await fetch(`/exports/${exportId}/metadata.json`);
+                if (!response.ok) throw new Error('Failed to load exported content');
                 
-                if (node.childNodes) {
-                    for (const child of node.childNodes) {
-                        if (traverseNodes(child)) return true;
+                const exportData = await response.json();
+                
+                // Validate the export data
+                if (!exportData.version || !exportData.chapters) {
+                    throw new Error('Invalid export format');
+                }
+
+                // Load the book content if available
+                if (exportData.bookContent) {
+                    document.getElementById('bookContent').innerHTML = exportData.bookContent;
+                } else if (exportData.bookText) {
+                    document.getElementById('bookContent').textContent = exportData.bookText;
+                    
+                    // Restore highlights
+                    if (exportData.highlights) {
+                        exportData.highlights.forEach(highlight => {
+                            const span = document.createElement('span');
+                            span.className = highlight.className;
+                            span.textContent = highlight.text;
+                            span.dataset.sectionId = highlight.sectionId;
+                            
+                            // Find the text in the content and replace it with the highlight
+                            const textNode = findTextNodeWithContent(bookContent, highlight.text);
+                            if (textNode) {
+                                const range = document.createRange();
+                                range.setStart(textNode, textNode.textContent.indexOf(highlight.text));
+                                range.setEnd(textNode, textNode.textContent.indexOf(highlight.text) + highlight.text.length);
+                                range.deleteContents();
+                                range.insertNode(span);
+                            }
+                        });
                     }
                 }
+
+                // Load chapters and sections
+                chapters = exportData.chapters;
                 
+                // Update UI
+                updateChaptersList();
+                
+                return true;
+            } catch (error) {
+                console.error('Import failed:', error);
+                alert('Failed to import content: ' + error.message);
                 return false;
             }
-            
-            traverseNodes(bookContent);
-            
-            if (startNode && endNode) {
-                range.setStart(startNode, startOffset);
-                range.setEnd(endNode, endOffset);
-                selection.removeAllRanges();
-                selection.addRange(range);
-                
-                // Trigger the selection event
-                bookContent.dispatchEvent(new Event('mouseup'));
-            }
         }
-
-        // Enable/disable smart select button based on cursor position
-        document.getElementById('bookContent').addEventListener('mouseup', function() {
-            const smartSelectBtn = document.getElementById('smartSelectBtn');
-            smartSelectBtn.disabled = !bookText;
-        });
     </script>
 </body>
 </html> 
