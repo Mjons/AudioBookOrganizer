@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioBook Organizer</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-hover: #45a049;
+            --border-color: #e0e0e0;
+            --background-light: #f5f5f5;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --spacing-sm: 10px;
+            --spacing-md: 20px;
+
+            /* Section Colors */
+            --section-color-1: #fff3e0;  /* Soft Orange */
+            --section-color-2: #e8f5e9;  /* Soft Green */
+            --section-color-3: #e3f2fd;  /* Soft Blue */
+            --section-color-4: #fce4ec;  /* Soft Pink */
+            --section-color-5: #efebe9;  /* Soft Brown */
+            --section-color-6: #e0f7fa;  /* Soft Cyan */
+            --section-color-7: #f3e5f5;  /* Soft Purple */
+            --section-color-8: #e8eaf6;  /* Soft Indigo */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: var(--spacing-md);
+            background-color: var(--background-light);
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            height: calc(100vh - 40px);
+            max-width: 2000px;
+            margin: 0 auto;
+        }
+
+        .column {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .column-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .column-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .column-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        /* Book Content Specific Styles */
+        .book-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+            background: white;
+            white-space: pre-wrap;
+        }
+
+        .book-content p {
+            margin-bottom: 1.5em;
+            text-align: justify;
+        }
+
+        /* Sections Panel Specific Styles */
+        .sections-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .section-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .section-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .section-text {
+            background-color: var(--background-light);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin: var(--spacing-sm) 0;
+            font-style: italic;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+            padding-top: var(--spacing-sm);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* File Upload Styles */
+        .file-upload {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .file-upload input[type="file"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: white;
+        }
+
+        /* Button Styles */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button[disabled] {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Selection Tools */
+        #selection-tools {
+            position: fixed;
+            background: white;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            min-width: 300px;
+            display: none;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .selection-tools-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .selection-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .selection-preview {
+            background: var(--background-light);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Smart Selection Tools */
+        .smart-select-tools {
+            position: fixed;
+            bottom: var(--spacing-md);
+            right: var(--spacing-md);
+            background: white;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .char-count-input {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .char-count-input input {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+        }
+
+        /* Export Panel */
+        .export-panel {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding: var(--spacing-md);
+            background: white;
+        }
+
+        .export-panel h2 {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .dropdown {
+            margin: var(--spacing-sm) 0;
+        }
+
+        .dropdown select {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            width: 100px;
+        }
+
+        /* Status Messages */
+        .status {
+            margin-top: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        /* Section Colors */
+        .section-color-1 {
+            background-color: var(--section-color-1) !important;
+            border-left: 4px solid #ffb74d !important;
+        }
+
+        .section-color-2 {
+            background-color: var(--section-color-2) !important;
+            border-left: 4px solid #81c784 !important;
+        }
+
+        .section-color-3 {
+            background-color: var(--section-color-3) !important;
+            border-left: 4px solid #64b5f6 !important;
+        }
+
+        .section-color-4 {
+            background-color: var(--section-color-4) !important;
+            border-left: 4px solid #f06292 !important;
+        }
+
+        .section-color-5 {
+            background-color: var(--section-color-5) !important;
+            border-left: 4px solid #a1887f !important;
+        }
+
+        .section-color-6 {
+            background-color: var(--section-color-6) !important;
+            border-left: 4px solid #4dd0e1 !important;
+        }
+
+        .section-color-7 {
+            background-color: var(--section-color-7) !important;
+            border-left: 4px solid #ba68c8 !important;
+        }
+
+        .section-color-8 {
+            background-color: var(--section-color-8) !important;
+            border-left: 4px solid #7986cb !important;
+        }
+
+        /* Selection colors matching section colors */
+        .color-1-selection ::selection {
+            background-color: var(--section-color-1) !important;
+        }
+
+        .color-2-selection ::selection {
+            background-color: var(--section-color-2) !important;
+        }
+
+        .color-3-selection ::selection {
+            background-color: var(--section-color-3) !important;
+        }
+
+        .color-4-selection ::selection {
+            background-color: var(--section-color-4) !important;
+        }
+
+        .color-5-selection ::selection {
+            background-color: var(--section-color-5) !important;
+        }
+
+        .color-6-selection ::selection {
+            background-color: var(--section-color-6) !important;
+        }
+
+        .color-7-selection ::selection {
+            background-color: var(--section-color-7) !important;
+        }
+
+        .color-8-selection ::selection {
+            background-color: var(--section-color-8) !important;
+        }
+
+        /* Color indicator in sections list */
+        .color-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: var(--radius-sm);
+            margin-right: var(--spacing-sm);
+            border: 1px solid rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        /* Next color preview */
+        .next-color-preview {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            background: var(--background-light);
+        }
+
+        .color-preview-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Section highlight in book content */
+        .section-highlight {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 2px 0;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .section-highlight:hover {
+            filter: brightness(0.95);
+        }
+
+        .section-highlight::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: inherit;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Section item enhancements */
+        .section-item {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .section-item:hover {
+            transform: translateX(4px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            padding-right: var(--spacing-md);
+        }
+
+        .section-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            flex-grow: 1;
+        }
+
+        .section-status {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            background: var(--background-light);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Column - Book Content -->
+        <div class="column">
+            <div class="column-header">
+                <h2>📚 Book Content</h2>
+                <div class="file-upload">
+                    <input type="file" id="bookFile" accept=".txt">
+                    <button onclick="uploadBook()">Upload Book</button>
+                </div>
+                <div id="loadingIndicator" class="loading">Loading book content...</div>
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+            <div class="column-content">
+                <div id="bookContent" class="book-content"></div>
+            </div>
+        </div>
+
+        <!-- Right Column - Sections -->
+        <div class="column">
+            <div class="column-header">
+                <h2>📝 Book Sections</h2>
+            </div>
+            <div class="column-content">
+                <div id="sectionsList" class="sections-list"></div>
+            </div>
+            <div class="export-panel">
+                <h2>📤 Export Options</h2>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="exportMetadata" checked>
+                    <label for="exportMetadata">Export metadata (.json)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="exportAudio" checked>
+                    <label for="exportAudio">Copy audio clips to folder</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="createZip">
+                    <label for="createZip">Zip all clips</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="mergeAudio">
+                    <label for="mergeAudio">Merge all into single .wav</label>
+                </div>
+                <div class="dropdown">
+                    <label for="silenceDuration">Silence between clips:</label>
+                    <select id="silenceDuration">
+                        <option value="0">0s</option>
+                        <option value="1">1s</option>
+                        <option value="2" selected>2s</option>
+                        <option value="5">5s</option>
+                    </select>
+                </div>
+                <button onclick="startExport()">Export</button>
+                <div id="status" class="status" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selection Tools -->
+    <div id="selection-tools">
+        <div class="selection-tools-content">
+            <div class="selection-info">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Selected text (<span id="selectionLength">0</span> characters)</span>
+                    <div class="next-color-preview">
+                        Next color: <div id="nextColorDot" class="color-preview-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="selection-preview" id="selectionPreview"></div>
+            <button class="create-section-btn" onclick="createSection()">
+                <i>➕</i> Create Section
+            </button>
+        </div>
+    </div>
+
+    <!-- Smart Selection Tools -->
+    <div class="smart-select-tools">
+        <div class="char-count-input">
+            <input type="number" id="charCount" min="1" value="500" placeholder="Character count">
+            <span>characters</span>
+        </div>
+        <button id="smartSelectBtn" class="smart-select-btn" onclick="smartSelect()" disabled>
+            <i>📏</i> Smart Select
+        </button>
+    </div>
+
+    <!-- Selection Guide Overlay -->
+    <div id="selectionGuide" class="selection-guide">
+        <div class="guide-step">
+            <i>👆</i>
+            <span>Click and drag to select text</span>
+        </div>
+        <div class="guide-step">
+            <i>✨</i>
+            <span>Release to see options</span>
+        </div>
+        <div class="guide-step">
+            <i>➕</i>
+            <span>Click "Create Section" to save</span>
+        </div>
+    </div>
+
+    <script>
+        let bookText = '';
+        let sections = [];
+        let currentColorIndex = 1;
+        const MAX_COLORS = 8;
+
+        // Update the color cycling
+        function getNextColor() {
+            const nextColor = currentColorIndex;
+            currentColorIndex = currentColorIndex % MAX_COLORS + 1;
+            return nextColor;
+        }
+
+        function updateSelectionColor() {
+            const nextColor = getNextColor();
+            const dot = document.getElementById('nextColorDot');
+            if (dot) {
+                dot.style.backgroundColor = `var(--section-color-${nextColor})`;
+                dot.style.borderColor = getAccentColor(nextColor);
+            }
+        }
+
+        function getAccentColor(colorIndex) {
+            const accentColors = {
+                1: '#ffb74d', // Orange
+                2: '#81c784', // Green
+                3: '#64b5f6', // Blue
+                4: '#f06292', // Pink
+                5: '#a1887f', // Brown
+                6: '#4dd0e1', // Cyan
+                7: '#ba68c8', // Purple
+                8: '#7986cb'  // Indigo
+            };
+            return accentColors[colorIndex] || accentColors[1];
+        }
+
+        function createSection() {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            if (!text) return;
+
+            const range = selection.getRangeAt(0);
+            const colorIndex = currentColorIndex;
+            
+            // Create section object
+            const section = {
+                id: Date.now(),
+                text: text,
+                colorIndex: colorIndex,
+                status: 'pending',
+                name: `Section ${sections.length + 1}`
+            };
+            
+            // Create highlight span
+            const span = document.createElement('span');
+            span.className = `section-highlight section-color-${colorIndex}`;
+            span.textContent = text;
+            span.dataset.sectionId = section.id;
+            
+            // Replace selected text with highlighted span
+            range.deleteContents();
+            range.insertNode(span);
+            
+            // Add section to array
+            sections.push(section);
+            
+            // Update UI
+            updateSectionsList();
+            updateSelectionColor();
+            
+            // Clear selection
+            selection.removeAllRanges();
+        }
+
+        function updateSectionsList() {
+            const sectionsList = document.getElementById('sectionsList');
+            sectionsList.innerHTML = sections.map(section => `
+                <div class="section-item section-color-${section.colorIndex}">
+                    <div class="section-header">
+                        <div class="color-indicator" style="background-color: var(--section-color-${section.colorIndex}); border-color: ${getAccentColor(section.colorIndex)}"></div>
+                        <input type="text" value="${section.name}" 
+                               onchange="updateSectionName(${section.id}, this.value)" 
+                               class="section-name" />
+                        <span class="section-status">${section.status}</span>
+                    </div>
+                    <div class="section-text">${section.text}</div>
+                    <div class="audio-controls">
+                        ${section.audioPath ? `
+                            <audio controls src="${section.audioPath}"></audio>
+                            <button onclick="removeAudio(${section.id})">Remove Audio</button>
+                        ` : `
+                            <input type="file" accept="audio/*" onchange="attachAudio(${section.id}, this)">
+                        `}
+                        <button onclick="deleteSection(${section.id})">Delete Section</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSectionName(sectionId, newName) {
+            const section = sections.find(s => s.id === sectionId);
+            if (section) {
+                section.name = newName;
+            }
+        }
+
+        async function uploadBook() {
+            const fileInput = document.getElementById('bookFile');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorMessage = document.getElementById('errorMessage');
+            const bookContent = document.getElementById('bookContent');
+            
+            errorMessage.style.display = 'none';
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                errorMessage.textContent = 'Please select a file first.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            
+            if (file.size > 10 * 1024 * 1024) {
+                errorMessage.textContent = 'File is too large. Maximum size is 10MB.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            if (!file.name.toLowerCase().endsWith('.txt')) {
+                errorMessage.textContent = 'Please upload a .txt file.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            loadingIndicator.style.display = 'block';
+            bookContent.textContent = '';
+
+            try {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    bookText = e.target.result;
+                    bookContent.textContent = bookText;
+                    sections = [];
+                    updateSectionsList();
+                    updateSelectionColor(); // Initialize selection color
+                    loadingIndicator.style.display = 'none';
+                    
+                    // Enable smart select button
+                    document.getElementById('smartSelectBtn').disabled = false;
+                };
+                
+                reader.onerror = function(e) {
+                    loadingIndicator.style.display = 'none';
+                    errorMessage.textContent = 'Error reading file. Please try again.';
+                    errorMessage.style.display = 'block';
+                };
+
+                reader.readAsText(file);
+            } catch (error) {
+                loadingIndicator.style.display = 'none';
+                errorMessage.textContent = 'Error uploading file: ' + error.message;
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // Show selection guide on first visit
+        if (!localStorage.getItem('selectionGuideShown')) {
+            document.getElementById('selectionGuide').style.display = 'block';
+            localStorage.setItem('selectionGuideShown', 'true');
+            
+            setTimeout(() => {
+                document.getElementById('selectionGuide').style.display = 'none';
+            }, 5000);
+        }
+
+        document.getElementById('bookContent').addEventListener('mouseup', function(e) {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            
+            const tools = document.getElementById('selection-tools');
+            if (text) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                tools.style.display = 'block';
+                tools.style.top = (window.scrollY + rect.bottom + 10) + 'px';
+                tools.style.left = (rect.left) + 'px';
+                
+                document.getElementById('selectionLength').textContent = text.length;
+                document.getElementById('selectionPreview').textContent = text;
+            } else {
+                if (!tools.contains(e.target)) {
+                    tools.style.display = 'none';
+                }
+            }
+        });
+
+        function attachAudio(sectionId, input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const section = sections.find(s => s.id === sectionId);
+            if (section) {
+                section.audioPath = URL.createObjectURL(file);
+                section.status = 'done';
+                updateSectionsList();
+            }
+        }
+
+        function removeAudio(sectionId) {
+            const section = sections.find(s => s.id === sectionId);
+            if (section) {
+                section.audioPath = null;
+                section.status = 'pending';
+                updateSectionsList();
+            }
+        }
+
+        function deleteSection(sectionId) {
+            sections = sections.filter(s => s.id !== sectionId);
+            updateSectionsList();
+        }
+
+        async function startExport() {
+            const status = document.getElementById('status');
+            status.style.display = 'none';
+            
+            const exportOptions = {
+                exportMetadataFlag: document.getElementById('exportMetadata').checked,
+                exportAudioFlag: document.getElementById('exportAudio').checked,
+                createZipFlag: document.getElementById('createZip').checked,
+                mergeAudioFlag: document.getElementById('mergeAudio').checked,
+                silenceDuration: parseInt(document.getElementById('silenceDuration').value),
+                sections: sections
+            };
+            
+            try {
+                const response = await fetch('/api/export', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(exportOptions)
+                });
+                
+                const result = await response.json();
+                
+                status.style.display = 'block';
+                if (result.success) {
+                    status.className = 'status success';
+                    status.textContent = 'Export completed successfully!';
+                } else {
+                    status.className = 'status error';
+                    status.textContent = `Export failed: ${result.error}`;
+                }
+            } catch (error) {
+                status.style.display = 'block';
+                status.className = 'status error';
+                status.textContent = `Export failed: ${error.message}`;
+            }
+        }
+
+        document.addEventListener('mousedown', function(e) {
+            const tools = document.getElementById('selection-tools');
+            if (!tools.contains(e.target) && !window.getSelection().toString().trim()) {
+                tools.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('scroll', function() {
+            const tools = document.getElementById('selection-tools');
+            if (tools.style.display === 'block') {
+                const selection = window.getSelection();
+                if (selection.toString().trim()) {
+                    const rect = selection.getRangeAt(0).getBoundingClientRect();
+                    tools.style.top = (window.scrollY + rect.bottom + 10) + 'px';
+                }
+            }
+        });
+
+        // Initialize selection color when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSelectionColor();
+            document.getElementById('smartSelectBtn').disabled = !bookText;
+        });
+
+        // Find paragraph boundaries
+        function findParagraphBoundaries(text, position) {
+            let start = position;
+            let end = position;
+            
+            // Find paragraph start (previous double newline or start of text)
+            while (start > 0) {
+                if (text.substring(start - 2, start) === '\n\n') {
+                    break;
+                }
+                start--;
+            }
+            
+            // Find paragraph end (next double newline or end of text)
+            while (end < text.length) {
+                if (text.substring(end, end + 2) === '\n\n') {
+                    break;
+                }
+                end++;
+            }
+            
+            return { start, end };
+        }
+
+        // Get cursor position in text content
+        function getCursorPosition(element) {
+            const selection = window.getSelection();
+            if (selection.rangeCount === 0) return 0;
+            
+            const range = selection.getRangeAt(0);
+            const preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(element);
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            return preCaretRange.toString().length;
+        }
+
+        // Smart select text based on character count
+        function smartSelect() {
+            const bookContent = document.getElementById('bookContent');
+            const charCount = parseInt(document.getElementById('charCount').value);
+            if (!charCount || !bookText) return;
+
+            const cursorPos = getCursorPosition(bookContent);
+            let targetEnd = Math.min(cursorPos + charCount, bookText.length);
+            
+            // Create a new range for the selection
+            const selection = window.getSelection();
+            const range = document.createRange();
+            
+            // Find the start and end nodes
+            let currentPos = 0;
+            let startNode = null;
+            let endNode = null;
+            let startOffset = 0;
+            let endOffset = 0;
+            
+            function traverseNodes(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const length = node.textContent.length;
+                    
+                    if (!startNode && currentPos + length >= cursorPos) {
+                        startNode = node;
+                        startOffset = cursorPos - currentPos;
+                    }
+                    
+                    if (!endNode && currentPos + length >= targetEnd) {
+                        endNode = node;
+                        endOffset = targetEnd - currentPos;
+                        return true;
+                    }
+                    
+                    currentPos += length;
+                }
+                
+                if (node.childNodes) {
+                    for (const child of node.childNodes) {
+                        if (traverseNodes(child)) return true;
+                    }
+                }
+                
+                return false;
+            }
+            
+            traverseNodes(bookContent);
+            
+            if (startNode && endNode) {
+                range.setStart(startNode, startOffset);
+                range.setEnd(endNode, endOffset);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                // Trigger the selection event
+                bookContent.dispatchEvent(new Event('mouseup'));
+            }
+        }
+
+        // Enable/disable smart select button based on cursor position
+        document.getElementById('bookContent').addEventListener('mouseup', function() {
+            const smartSelectBtn = document.getElementById('smartSelectBtn');
+            smartSelectBtn.disabled = !bookText;
+        });
+    </script>
+</body>
+</html> 
