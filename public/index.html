@@ -18,6 +18,7 @@
             --radius-md: 12px;
             --spacing-sm: 10px;
             --spacing-md: 20px;
+            --primary-color-rgb: 63, 131, 248;
 
             /* Section Colors */
             --section-color-1: #fff3e0;  /* Soft Orange */
@@ -108,6 +109,8 @@
             display: flex;
             flex-direction: column;
             gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            min-height: 100px;
         }
 
         .section-item {
@@ -625,24 +628,41 @@
 
         /* Drag and Drop Styles */
         .dragging {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: move;
+            box-shadow: var(--shadow-lg);
+            background: white;
+            position: relative;
+            z-index: 100;
         }
 
         .drag-over {
             border: 2px dashed var(--primary-color);
+            padding: var(--spacing-sm);
             margin: 8px 0;
+            border-radius: var(--radius-sm);
+            background: rgba(var(--primary-color-rgb), 0.05);
         }
 
-        .drag-indicator {
-            height: 2px;
-            background: var(--primary-color);
-            margin: 4px 0;
-            display: none;
+        .drag-handle {
+            cursor: move;
+            padding: 4px;
+            margin-right: var(--spacing-sm);
+            color: var(--text-secondary);
+            opacity: 0.6;
+            transition: opacity 0.2s;
         }
 
-        .drag-indicator.visible {
-            display: block;
+        .section-item:hover .drag-handle {
+            opacity: 1;
+        }
+
+        .drag-placeholder {
+            border: 2px dashed var(--border-color);
+            margin: var(--spacing-sm) 0;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            background: rgba(0, 0, 0, 0.02);
         }
 
         /* Update existing styles */
@@ -651,6 +671,7 @@
             flex-direction: column;
             gap: var(--spacing-md);
             padding: var(--spacing-md);
+            min-height: 100px;
         }
 
         .column-header {
@@ -987,13 +1008,16 @@
                             </button>
                         </div>
                     </div>
-                    <div class="chapter-sections ${chapter.collapsed ? 'collapsed' : ''}">
+                    <div class="chapter-sections ${chapter.collapsed ? 'collapsed' : ''}" data-chapter-id="${chapter.id}">
                         ${chapter.sections.map((section, index) => `
                             <div class="section-item section-color-${section.colorIndex}" 
                                  data-section-id="${section.id}"
+                                 data-index="${index}"
+                                 draggable="true"
                                  ondblclick="navigateToSection(${section.id})"
                                  title="Double-click to locate in text">
                                 <div class="section-header">
+                                    <div class="drag-handle">⋮⋮</div>
                                     <div class="color-indicator" style="background-color: var(--section-color-${section.colorIndex}); border-color: ${getAccentColor(section.colorIndex)}"></div>
                                     <input type="text" value="${section.name}" 
                                            onchange="updateSectionName(${section.id}, this.value)" 
@@ -1037,36 +1061,105 @@
         function initializeDragAndDrop() {
             const draggables = document.querySelectorAll('.section-item');
             const containers = document.querySelectorAll('.chapter-sections');
+            let draggedElement = null;
+            let placeholder = null;
 
             draggables.forEach(draggable => {
-                draggable.setAttribute('draggable', true);
-                draggable.addEventListener('dragstart', () => {
+                // Handle drag start
+                draggable.addEventListener('dragstart', (e) => {
+                    draggedElement = draggable;
                     draggable.classList.add('dragging');
+                    
+                    // Create and insert placeholder
+                    placeholder = document.createElement('div');
+                    placeholder.className = 'drag-placeholder';
+                    draggable.parentNode.insertBefore(placeholder, draggable.nextSibling);
+                    
+                    // Set drag data
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', draggable.dataset.sectionId);
+                    
+                    // Set custom drag image (optional)
+                    const dragImage = draggable.cloneNode(true);
+                    dragImage.style.width = draggable.offsetWidth + 'px';
+                    dragImage.style.height = draggable.offsetHeight + 'px';
+                    dragImage.style.transform = 'translateX(-99999px)';
+                    document.body.appendChild(dragImage);
+                    e.dataTransfer.setDragImage(dragImage, 0, 0);
+                    setTimeout(() => document.body.removeChild(dragImage), 0);
                 });
+
+                // Handle drag end
                 draggable.addEventListener('dragend', () => {
                     draggable.classList.remove('dragging');
+                    if (placeholder && placeholder.parentNode) {
+                        placeholder.parentNode.removeChild(placeholder);
+                    }
+                    draggedElement = null;
+                    placeholder = null;
+                    
+                    // Remove all drag-over classes
+                    document.querySelectorAll('.drag-over').forEach(el => {
+                        el.classList.remove('drag-over');
+                    });
                 });
             });
 
             containers.forEach(container => {
-                container.addEventListener('dragover', e => {
+                // Handle drag enter
+                container.addEventListener('dragenter', (e) => {
                     e.preventDefault();
-                    const draggable = document.querySelector('.dragging');
-                    const afterElement = getDragAfterElement(container, e.clientY);
-                    
-                    if (afterElement) {
-                        container.insertBefore(draggable, afterElement);
-                    } else {
-                        container.appendChild(draggable);
+                    if (draggedElement && !container.contains(draggedElement)) {
+                        container.classList.add('drag-over');
                     }
                 });
 
-                container.addEventListener('drop', e => {
+                // Handle drag leave
+                container.addEventListener('dragleave', (e) => {
                     e.preventDefault();
-                    const sectionId = parseInt(document.querySelector('.dragging').dataset.sectionId);
-                    const newChapterId = parseInt(container.closest('.chapter-item').dataset.chapterId);
+                    if (e.relatedTarget && !container.contains(e.relatedTarget)) {
+                        container.classList.remove('drag-over');
+                    }
+                });
+
+                // Handle drag over
+                container.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!draggedElement) return;
+
+                    const afterElement = getDragAfterElement(container, e.clientY);
                     
-                    moveSection(sectionId, newChapterId);
+                    if (placeholder) {
+                        if (afterElement) {
+                            container.insertBefore(placeholder, afterElement);
+                        } else {
+                            container.appendChild(placeholder);
+                        }
+                    }
+                });
+
+                // Handle drop
+                container.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    container.classList.remove('drag-over');
+                    
+                    if (!draggedElement) return;
+                    
+                    const newChapterId = parseInt(container.dataset.chapterId);
+                    const sectionId = parseInt(draggedElement.dataset.sectionId);
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    
+                    // Calculate new index
+                    let newIndex;
+                    if (afterElement) {
+                        newIndex = parseInt(afterElement.dataset.index);
+                    } else {
+                        const sections = container.querySelectorAll('.section-item');
+                        newIndex = sections.length;
+                    }
+                    
+                    // Move section in the data structure
+                    moveSection(sectionId, newChapterId, newIndex);
                 });
             });
         }
@@ -1086,7 +1179,7 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        function moveSection(sectionId, newChapterId) {
+        function moveSection(sectionId, newChapterId, newIndex) {
             let section;
             let oldChapter;
             
@@ -1101,12 +1194,12 @@
                 }
             }
             
-            // Add section to new chapter
+            // Add section to new chapter at the specified index
             if (section) {
                 const newChapter = chapters.find(c => c.id === newChapterId);
                 if (newChapter) {
                     section.chapterId = newChapterId;
-                    newChapter.sections.push(section);
+                    newChapter.sections.splice(newIndex, 0, section);
                     updateChaptersList();
                 }
             }
