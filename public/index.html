@@ -1307,6 +1307,22 @@
                 if (newChapter) {
                     section.chapterId = newChapterId;
                     newChapter.sections.splice(newIndex, 0, section);
+                    
+                    // Reinitialize audio players for affected chapters
+                    if (oldChapter) {
+                        const oldPlayer = chapterPlayers.get(oldChapter.id);
+                        if (oldPlayer) {
+                            oldPlayer.stop();
+                            chapterPlayers.delete(oldChapter.id);
+                        }
+                    }
+                    
+                    const newPlayer = chapterPlayers.get(newChapterId);
+                    if (newPlayer) {
+                        newPlayer.stop();
+                        chapterPlayers.delete(newChapterId);
+                    }
+                    
                     updateChaptersList();
                 }
             }
