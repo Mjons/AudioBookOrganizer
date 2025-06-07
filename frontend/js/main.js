@@ -34,7 +34,8 @@ import {
     updateChaptersList, 
     updateSelectionColor,
     showExportModal,
-    hideExportModal
+    hideExportModal,
+    copyText
 } from './modules/ui.js';
 
 import { 
@@ -67,6 +68,7 @@ window.startExport = startExport;
 window.saveProgress = saveProgress;
 window.loadProgress = loadProgress;
 window.uploadBook = uploadBook;
+window.copyText = copyText;
 
 // Book upload function - preserving exact logic from original
 async function uploadBook() {

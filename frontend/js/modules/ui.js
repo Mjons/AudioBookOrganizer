@@ -60,6 +60,9 @@ export function updateChaptersList() {
                                    onchange="updateSectionName(${section.id}, this.value)" 
                                    class="section-name" />
                             <span class="section-status">${section.status}</span>
+                            <button class="copy-btn" onclick="copyText(${section.id})" title="Copy section text">
+                                <i>📋</i>
+                            </button>
                         </div>
                         <div class="section-text">${section.text}</div>
                         <div class="audio-controls">
@@ -100,4 +103,37 @@ export function hideExportModal() {
     document.body.style.overflow = ''; // Restore scrolling
     document.getElementById('status').style.display = 'none';
     document.getElementById('status').textContent = '';
+}
+
+// Add the copyText function
+export function copyText(sectionId) {
+    // Find the section in chapters
+    for (const chapter of chapters) {
+        const section = chapter.sections.find(s => s.id === sectionId);
+        if (section) {
+            // Create a temporary textarea to copy the text
+            const textarea = document.createElement('textarea');
+            textarea.value = section.text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                // Execute copy command
+                document.execCommand('copy');
+                // Show a brief success message
+                const copyBtn = document.querySelector(`[data-section-id="${sectionId}"] .copy-btn i`);
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 1000);
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+            }
+            
+            // Clean up
+            document.body.removeChild(textarea);
+            break;
+        }
+    }
 } 

@@ -66,6 +66,27 @@
     color: var(--text-secondary);
 }
 
+.copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.copy-btn:hover {
+    color: var(--primary-color);
+}
+
+.copy-btn i {
+    font-size: 1rem;
+}
+
 .section-text {
     background-color: var(--background-light);
     padding: var(--spacing-md);
