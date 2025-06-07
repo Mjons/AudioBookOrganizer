@@ -719,6 +719,95 @@
             transform: translateX(4px);
             background-color: rgba(0, 0, 0, 0.02);
         }
+
+        /* Chapter Audio Player */
+        .chapter-audio-player {
+            display: none;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .chapter-audio-player.active {
+            display: block;
+        }
+
+        .chapter-audio-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .chapter-audio-progress {
+            flex: 1;
+            height: 4px;
+            background: var(--background-light);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .chapter-audio-progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 2px;
+            width: 0;
+            transition: width 0.1s linear;
+        }
+
+        .chapter-audio-time {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .chapter-audio-sections {
+            display: flex;
+            height: 20px;
+            background: var(--background-light);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin-top: var(--spacing-sm);
+        }
+
+        .chapter-audio-section {
+            height: 100%;
+            border-right: 1px solid white;
+            transition: background-color 0.2s;
+        }
+
+        .chapter-audio-section:last-child {
+            border-right: none;
+        }
+
+        .chapter-audio-section.active {
+            background-color: rgba(var(--primary-color-rgb), 0.2);
+        }
+
+        /* Update existing styles */
+        .chapter-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .chapter-play-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .chapter-play-btn i {
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
@@ -1000,12 +1089,30 @@
                                class="chapter-title" />
                         <div class="chapter-duration">${formatDuration(calculateChapterDuration(chapter))}</div>
                         <div class="chapter-controls">
-                            <button onclick="event.stopPropagation(); playChapter(${chapter.id})">
-                                <i>▶️</i> Play All
+                            <button class="chapter-play-btn" onclick="event.stopPropagation(); toggleChapterPlayback(${chapter.id})">
+                                <i>▶️</i>
                             </button>
                             <button onclick="event.stopPropagation(); deleteChapter(${chapter.id})">
                                 <i>🗑️</i>
                             </button>
+                        </div>
+                    </div>
+                    <div class="chapter-audio-player" id="chapter-player-${chapter.id}">
+                        <div class="chapter-audio-controls">
+                            <button class="chapter-play-btn" onclick="toggleChapterPlayback(${chapter.id})">
+                                <i id="chapter-play-icon-${chapter.id}">▶️</i>
+                            </button>
+                            <div class="chapter-audio-time" id="chapter-current-time-${chapter.id}">0:00</div>
+                            <div class="chapter-audio-progress" onclick="seekChapterAudio(event, ${chapter.id})">
+                                <div class="chapter-audio-progress-bar" id="chapter-progress-${chapter.id}"></div>
+                            </div>
+                            <div class="chapter-audio-time" id="chapter-duration-${chapter.id}">0:00</div>
+                        </div>
+                        <div class="chapter-audio-sections" id="chapter-sections-${chapter.id}">
+                            ${chapter.sections.filter(s => s.audioPath).map((section, index, array) => {
+                                const width = (100 / array.length) + '%';
+                                return `<div class="chapter-audio-section" style="width: ${width}" data-section-id="${section.id}"></div>`;
+                            }).join('')}
                         </div>
                     </div>
                     <div class="chapter-sections ${chapter.collapsed ? 'collapsed' : ''}" data-chapter-id="${chapter.id}">
@@ -1016,22 +1123,22 @@
                                  draggable="true"
                                  ondblclick="navigateToSection(${section.id})"
                                  title="Double-click to locate in text">
-                                <div class="section-header">
+                    <div class="section-header">
                                     <div class="drag-handle">⋮⋮</div>
-                                    <div class="color-indicator" style="background-color: var(--section-color-${section.colorIndex}); border-color: ${getAccentColor(section.colorIndex)}"></div>
-                                    <input type="text" value="${section.name}" 
-                                           onchange="updateSectionName(${section.id}, this.value)" 
-                                           class="section-name" />
-                                    <span class="section-status">${section.status}</span>
-                                </div>
-                                <div class="section-text">${section.text}</div>
-                                <div class="audio-controls">
-                                    ${section.audioPath ? `
-                                        <audio controls src="${section.audioPath}"></audio>
+                        <div class="color-indicator" style="background-color: var(--section-color-${section.colorIndex}); border-color: ${getAccentColor(section.colorIndex)}"></div>
+                        <input type="text" value="${section.name}" 
+                               onchange="updateSectionName(${section.id}, this.value)" 
+                               class="section-name" />
+                        <span class="section-status">${section.status}</span>
+                    </div>
+                    <div class="section-text">${section.text}</div>
+                    <div class="audio-controls">
+                        ${section.audioPath ? `
+                            <audio controls src="${section.audioPath}"></audio>
                                         <button onclick="removeAudio(${chapter.id}, ${section.id})">Remove Audio</button>
-                                    ` : `
+                        ` : `
                                         <input type="file" accept="audio/*" onchange="attachAudio(${chapter.id}, ${section.id}, this)">
-                                    `}
+                        `}
                                     <button onclick="deleteSection(${chapter.id}, ${section.id})">Delete Section</button>
                                 </div>
                             </div>
@@ -1260,6 +1367,14 @@
             if (section) {
                 section.audioPath = null;
                 section.status = 'pending';
+                
+                // Stop and reset chapter player if it exists
+                const player = chapterPlayers.get(chapterId);
+                if (player) {
+                    player.stop();
+                    chapterPlayers.delete(chapterId);
+                }
+                
                 updateChaptersList();
             }
         }
@@ -1278,7 +1393,7 @@
                 sectionId: highlight.dataset.sectionId,
                 className: highlight.className
             }));
-
+            
             const exportOptions = {
                 exportMetadataFlag: document.getElementById('exportMetadata').checked,
                 exportAudioFlag: document.getElementById('exportAudio').checked,
@@ -1648,7 +1763,7 @@
 
                         // Load the book text
                         bookText = projectData.bookText;
-                        const bookContent = document.getElementById('bookContent');
+            const bookContent = document.getElementById('bookContent');
                         bookContent.textContent = bookText;
 
                         // Load chapters
@@ -1672,7 +1787,7 @@
                                     // Find the text in the content
                                     const textNode = findTextNodeWithContent(bookContent, highlight.text);
                                     if (textNode) {
-                                        const range = document.createRange();
+            const range = document.createRange();
                                         range.setStart(textNode, textNode.textContent.indexOf(highlight.text));
                                         range.setEnd(textNode, textNode.textContent.indexOf(highlight.text) + highlight.text.length);
                                         range.deleteContents();
@@ -1800,6 +1915,221 @@
                 alert('Failed to import content: ' + error.message);
                 return false;
             }
+        }
+
+        // Chapter Audio Player
+        const chapterPlayers = new Map();
+
+        class ChapterAudioPlayer {
+            constructor(chapterId) {
+                this.chapterId = chapterId;
+                this.currentSectionIndex = 0;
+                this.isPlaying = false;
+                this.audioElements = [];
+                this.currentAudio = null;
+                this.totalDuration = 0;
+                this.currentTime = 0;
+                
+                this.initializeAudio();
+            }
+            
+            initializeAudio() {
+                const chapter = chapters.find(c => c.id === this.chapterId);
+                if (!chapter) return;
+                
+                // Create audio elements for each section
+                this.audioElements = chapter.sections
+                    .filter(s => s.audioPath)
+                    .map(s => {
+                        const audio = new Audio(s.audioPath);
+                        audio.addEventListener('ended', () => this.playNextSection());
+                        audio.addEventListener('timeupdate', () => this.updateProgress());
+                        audio.addEventListener('loadedmetadata', () => {
+                            this.totalDuration += audio.duration;
+                            this.updateDurationDisplay();
+                        });
+                        return audio;
+                    });
+                    
+                // Initialize UI elements
+                this.playerElement = document.getElementById(`chapter-player-${this.chapterId}`);
+                this.progressBar = document.getElementById(`chapter-progress-${this.chapterId}`);
+                this.playIcon = document.getElementById(`chapter-play-icon-${this.chapterId}`);
+                this.currentTimeDisplay = document.getElementById(`chapter-current-time-${this.chapterId}`);
+                this.durationDisplay = document.getElementById(`chapter-duration-${this.chapterId}`);
+                this.sectionsContainer = document.getElementById(`chapter-sections-${this.chapterId}`);
+            }
+            
+            togglePlayback() {
+                if (!this.audioElements.length) return;
+                
+                if (this.isPlaying) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            }
+            
+            play() {
+                if (!this.audioElements.length) return;
+                
+                // Stop all other chapter players
+                chapterPlayers.forEach((player, id) => {
+                    if (id !== this.chapterId) player.pause();
+                });
+                
+                this.isPlaying = true;
+                this.playerElement.classList.add('active');
+                this.playIcon.textContent = '⏸️';
+                
+                if (!this.currentAudio) {
+                    this.currentAudio = this.audioElements[this.currentSectionIndex];
+                }
+                
+                this.currentAudio.play();
+                this.updateSectionHighlight();
+            }
+            
+            pause() {
+                if (this.currentAudio) {
+                    this.currentAudio.pause();
+                }
+                this.isPlaying = false;
+                this.playIcon.textContent = '▶️';
+            }
+            
+            playNextSection() {
+                if (this.currentAudio) {
+                    this.currentAudio.pause();
+                    this.currentAudio.currentTime = 0;
+                }
+                
+                this.currentSectionIndex++;
+                if (this.currentSectionIndex < this.audioElements.length) {
+                    this.currentAudio = this.audioElements[this.currentSectionIndex];
+                    if (this.isPlaying) {
+                        this.currentAudio.play();
+                    }
+                    this.updateSectionHighlight();
+                } else {
+                    this.stop();
+                }
+            }
+            
+            stop() {
+                if (this.currentAudio) {
+                    this.currentAudio.pause();
+                    this.currentAudio.currentTime = 0;
+                }
+                this.isPlaying = false;
+                this.currentSectionIndex = 0;
+                this.currentAudio = this.audioElements[0];
+                this.playIcon.textContent = '▶️';
+                this.updateProgress();
+                this.playerElement.classList.remove('active');
+                this.clearSectionHighlight();
+            }
+            
+            seek(percentage) {
+                if (!this.audioElements.length) return;
+                
+                const totalTime = percentage * this.totalDuration;
+                let accumulatedTime = 0;
+                let foundSection = false;
+                
+                // Stop current audio if playing
+                if (this.currentAudio) {
+                    this.currentAudio.pause();
+                    this.currentAudio.currentTime = 0;
+                }
+                
+                // Find the correct section and time
+                for (let i = 0; i < this.audioElements.length; i++) {
+                    const audio = this.audioElements[i];
+                    if (accumulatedTime + audio.duration > totalTime) {
+                        // Clean up previous audio if different section
+                        if (this.currentSectionIndex !== i && this.currentAudio) {
+                            this.currentAudio.pause();
+                            this.currentAudio.currentTime = 0;
+                        }
+                        
+                        this.currentSectionIndex = i;
+                        this.currentAudio = audio;
+                        audio.currentTime = totalTime - accumulatedTime;
+                        
+                        if (this.isPlaying) {
+                            audio.play();
+                        }
+                        
+                        foundSection = true;
+                        break;
+                    }
+                    accumulatedTime += audio.duration;
+                }
+                
+                // If we didn't find a section (clicked at the very end)
+                if (!foundSection && this.audioElements.length > 0) {
+                    this.currentSectionIndex = this.audioElements.length - 1;
+                    this.currentAudio = this.audioElements[this.currentSectionIndex];
+                    this.currentAudio.currentTime = this.currentAudio.duration;
+                }
+                
+                this.updateSectionHighlight();
+                this.updateProgress();
+            }
+            
+            updateProgress() {
+                if (!this.audioElements.length) return;
+                
+                // Calculate total progress
+                let accumulatedTime = 0;
+                for (let i = 0; i < this.currentSectionIndex; i++) {
+                    accumulatedTime += this.audioElements[i].duration;
+                }
+                if (this.currentAudio) {
+                    accumulatedTime += this.currentAudio.currentTime;
+                }
+                
+                // Update progress bar and time display
+                const progress = (accumulatedTime / this.totalDuration) * 100;
+                this.progressBar.style.width = `${progress}%`;
+                this.currentTimeDisplay.textContent = formatDuration(accumulatedTime);
+            }
+            
+            updateDurationDisplay() {
+                this.durationDisplay.textContent = formatDuration(this.totalDuration);
+            }
+            
+            updateSectionHighlight() {
+                const sections = this.sectionsContainer.children;
+                Array.from(sections).forEach((section, index) => {
+                    section.classList.toggle('active', index === this.currentSectionIndex);
+                });
+            }
+            
+            clearSectionHighlight() {
+                const sections = this.sectionsContainer.children;
+                Array.from(sections).forEach(section => section.classList.remove('active'));
+            }
+        }
+
+        function toggleChapterPlayback(chapterId) {
+            let player = chapterPlayers.get(chapterId);
+            if (!player) {
+                player = new ChapterAudioPlayer(chapterId);
+                chapterPlayers.set(chapterId, player);
+            }
+            player.togglePlayback();
+        }
+
+        function seekChapterAudio(event, chapterId) {
+            const player = chapterPlayers.get(chapterId);
+            if (!player) return;
+            
+            const progressBar = event.currentTarget;
+            const rect = progressBar.getBoundingClientRect();
+            const percentage = (event.clientX - rect.left) / rect.width;
+            player.seek(percentage);
         }
     </script>
 </body>

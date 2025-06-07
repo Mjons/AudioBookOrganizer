@@ -204,21 +204,21 @@ def export_audiobook():
                     chapter_audio_path = os.path.join(chapter_dir, f"chapter_{chapter_idx+1}_merged.wav")
                     merged_audio.export(chapter_audio_path, format='wav')
 
-            # Create ZIP archive if requested
-            if export_options['createZip']:
-                zip_path = os.path.join(export_path, 'audiobook_export.zip')
-                with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    # Add metadata if it exists
-                    if export_options['exportMetadata']:
-                        zipf.write(metadata_path, 'metadata.json')
-                    
-                    # Add all files from the export directory
-                    for root, _, files in os.walk(export_path):
-                        for file in files:
-                            if file != 'audiobook_export.zip':  # Don't include the zip file itself
-                                file_path = os.path.join(root, file)
-                                arcname = os.path.relpath(file_path, export_path)
-                                zipf.write(file_path, arcname)
+        # Create ZIP archive if requested
+        if export_options['createZip']:
+            zip_path = os.path.join(export_path, 'audiobook_export.zip')
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                # Add metadata if it exists
+                if export_options['exportMetadata']:
+                    zipf.write(metadata_path, 'metadata.json')
+                
+                # Add all files from the export directory
+                for root, _, files in os.walk(export_path):
+                    for file in files:
+                        if file != 'audiobook_export.zip':  # Don't include the zip file itself
+                            file_path = os.path.join(root, file)
+                            arcname = os.path.relpath(file_path, export_path)
+                            zipf.write(file_path, arcname)
 
         return jsonify({
             'success': True,
